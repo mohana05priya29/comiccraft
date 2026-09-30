@@ -1,0 +1,828 @@
+import os
+import json
+import shutil
+from pathlib import Path
+from datetime import datetime
+
+
+# ============================================================
+# COMICCRAFT - EXPORT MANAGER
+# ============================================================
+
+EXPORT_FOLDER = Path("exports")
+
+SUPPORTED_FORMATS = [
+    ".pdf",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".json",
+    ".txt"
+]
+
+
+# ============================================================
+# 1. CREATE EXPORT FOLDER
+# ============================================================
+
+def create_export_folder():
+
+    EXPORT_FOLDER.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    print("Export folder is ready.")
+
+
+# ============================================================
+# 2. GENERATE EXPORT NAME
+# ============================================================
+
+def generate_filename(
+    comic_name="comiccraft_comic",
+    extension=".pdf"
+):
+
+    timestamp = datetime.now().strftime(
+        "%Y%m%d_%H%M%S"
+    )
+
+    filename = (
+        f"{comic_name}_{timestamp}"
+        f"{extension}"
+    )
+
+    return filename
+
+
+# ============================================================
+# 3. EXPORT TEXT
+# ============================================================
+
+def export_text(
+    content,
+    comic_name="comiccraft_comic"
+):
+
+    create_export_folder()
+
+    filename = generate_filename(
+        comic_name,
+        ".txt"
+    )
+
+    file_path = (
+        EXPORT_FOLDER /
+        filename
+    )
+
+    with open(
+        file_path,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        file.write(content)
+
+    print(
+        "Text export completed."
+    )
+
+    print(
+        f"File: {file_path}"
+    )
+
+    return file_path
+
+
+# ============================================================
+# 4. EXPORT JSON
+# ============================================================
+
+def export_json(
+    data,
+    comic_name="comiccraft_comic"
+):
+
+    create_export_folder()
+
+    filename = generate_filename(
+        comic_name,
+        ".json"
+    )
+
+    file_path = (
+        EXPORT_FOLDER /
+        filename
+    )
+
+    with open(
+        file_path,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        json.dump(
+            data,
+            file,
+            indent=4,
+            ensure_ascii=False
+        )
+
+    print(
+        "JSON export completed."
+    )
+
+    print(
+        f"File: {file_path}"
+    )
+
+    return file_path
+
+
+# ============================================================
+# 5. EXPORT IMAGE
+# ============================================================
+
+def export_image(
+    source_image,
+    comic_name="comiccraft_comic"
+):
+
+    create_export_folder()
+
+    source = Path(source_image)
+
+    if not source.exists():
+
+        print(
+            "Source image not found."
+        )
+
+        return None
+
+    extension = source.suffix.lower()
+
+    if extension not in [
+        ".png",
+        ".jpg",
+        ".jpeg"
+    ]:
+
+        print(
+            "Unsupported image format."
+        )
+
+        return None
+
+    filename = generate_filename(
+        comic_name,
+        extension
+    )
+
+    destination = (
+        EXPORT_FOLDER /
+        filename
+    )
+
+    shutil.copy2(
+        source,
+        destination
+    )
+
+    print(
+        "Image export completed."
+    )
+
+    print(
+        f"File: {destination}"
+    )
+
+    return destination
+
+
+# ============================================================
+# 6. EXPORT PDF
+# ============================================================
+
+def export_pdf(
+    source_pdf,
+    comic_name="comiccraft_comic"
+):
+
+    create_export_folder()
+
+    source = Path(source_pdf)
+
+    if not source.exists():
+
+        print(
+            "PDF file not found."
+        )
+
+        return None
+
+    filename = generate_filename(
+        comic_name,
+        ".pdf"
+    )
+
+    destination = (
+        EXPORT_FOLDER /
+        filename
+    )
+
+    shutil.copy2(
+        source,
+        destination
+    )
+
+    print(
+        "PDF export completed."
+    )
+
+    print(
+        f"File: {destination}"
+    )
+
+    return destination
+
+
+# ============================================================
+# 7. COPY COMPLETE COMIC
+# ============================================================
+
+def export_complete_comic(
+    comic_folder,
+    comic_name="comiccraft_comic"
+):
+
+    create_export_folder()
+
+    source = Path(comic_folder)
+
+    if not source.exists():
+
+        print(
+            "Comic folder not found."
+        )
+
+        return None
+
+    timestamp = datetime.now().strftime(
+        "%Y%m%d_%H%M%S"
+    )
+
+    destination = (
+        EXPORT_FOLDER /
+        f"{comic_name}_{timestamp}"
+    )
+
+    shutil.copytree(
+        source,
+        destination
+    )
+
+    print(
+        "Complete comic exported."
+    )
+
+    print(
+        f"Location: {destination}"
+    )
+
+    return destination
+
+
+# ============================================================
+# 8. LIST EXPORTS
+# ============================================================
+
+def list_exports():
+
+    create_export_folder()
+
+    files = []
+
+    for item in EXPORT_FOLDER.iterdir():
+
+        if item.is_file():
+
+            files.append(item)
+
+    files.sort()
+
+    print()
+    print("=" * 60)
+    print("COMICCRAFT EXPORTS")
+    print("=" * 60)
+
+    if not files:
+
+        print(
+            "No exported files found."
+        )
+
+        return files
+
+    for number, file in enumerate(
+        files,
+        start=1
+    ):
+
+        size = file.stat().st_size
+
+        size_kb = round(
+            size / 1024,
+            2
+        )
+
+        print(
+            f"{number}. {file.name}"
+        )
+
+        print(
+            f"   Size: {size_kb} KB"
+        )
+
+    print("=" * 60)
+
+    return files
+
+
+# ============================================================
+# 9. FIND EXPORT
+# ============================================================
+
+def find_export(filename):
+
+    create_export_folder()
+
+    file_path = (
+        EXPORT_FOLDER /
+        filename
+    )
+
+    if file_path.exists():
+
+        return file_path
+
+    return None
+
+
+# ============================================================
+# 10. DELETE EXPORT
+# ============================================================
+
+def delete_export(filename):
+
+    file_path = find_export(
+        filename
+    )
+
+    if file_path is None:
+
+        print(
+            "Export file not found."
+        )
+
+        return False
+
+    file_path.unlink()
+
+    print(
+        f"Deleted: {filename}"
+    )
+
+    return True
+
+
+# ============================================================
+# 11. DELETE ALL EXPORTS
+# ============================================================
+
+def delete_all_exports():
+
+    create_export_folder()
+
+    count = 0
+
+    for item in EXPORT_FOLDER.iterdir():
+
+        if item.is_file():
+
+            item.unlink()
+
+            count += 1
+
+        elif item.is_dir():
+
+            shutil.rmtree(item)
+
+            count += 1
+
+    print(
+        f"{count} export items deleted."
+    )
+
+
+# ============================================================
+# 12. EXPORT INFORMATION
+# ============================================================
+
+def get_export_information():
+
+    files = list_exports()
+
+    information = []
+
+    for file in files:
+
+        if file.exists():
+
+            information.append({
+
+                "name": file.name,
+
+                "path": str(file),
+
+                "extension": file.suffix,
+
+                "size_bytes":
+                    file.stat().st_size,
+
+                "size_kb":
+                    round(
+                        file.stat().st_size
+                        / 1024,
+                        2
+                    )
+
+            })
+
+    return information
+
+
+# ============================================================
+# 13. SEARCH EXPORTS
+# ============================================================
+
+def search_exports(keyword):
+
+    create_export_folder()
+
+    results = []
+
+    keyword = keyword.lower()
+
+    for file in EXPORT_FOLDER.iterdir():
+
+        if keyword in file.name.lower():
+
+            results.append(file)
+
+    print()
+    print(
+        f"Search results for: {keyword}"
+    )
+
+    if not results:
+
+        print(
+            "No matching exports found."
+        )
+
+    else:
+
+        for file in results:
+
+            print(
+                f"- {file.name}"
+            )
+
+    return results
+
+
+# ============================================================
+# 14. CREATE EXPORT REPORT
+# ============================================================
+
+def create_export_report():
+
+    create_export_folder()
+
+    information = (
+        get_export_information()
+    )
+
+    report = {
+
+        "project":
+            "ComicCraft",
+
+        "created_at":
+            datetime.now().isoformat(),
+
+        "total_exports":
+            len(information),
+
+        "exports":
+            information
+    }
+
+    report_path = (
+        EXPORT_FOLDER /
+        "export_report.json"
+    )
+
+    with open(
+        report_path,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        json.dump(
+            report,
+            file,
+            indent=4,
+            ensure_ascii=False
+        )
+
+    print(
+        "Export report created."
+    )
+
+    print(
+        f"File: {report_path}"
+    )
+
+    return report_path
+
+
+# ============================================================
+# 15. EXPORT SUMMARY
+# ============================================================
+
+def export_summary():
+
+    create_export_folder()
+
+    files = [
+        item
+        for item in EXPORT_FOLDER.iterdir()
+        if item.is_file()
+    ]
+
+    print()
+    print("=" * 50)
+    print("COMICCRAFT EXPORT SUMMARY")
+    print("=" * 50)
+
+    print(
+        f"Total exported files: {len(files)}"
+    )
+
+    formats = {}
+
+    for file in files:
+
+        extension = (
+            file.suffix.lower()
+            or "unknown"
+        )
+
+        formats[extension] = (
+            formats.get(extension, 0) + 1
+        )
+
+    for extension, count in formats.items():
+
+        print(
+            f"{extension}: {count}"
+        )
+
+    print("=" * 50)
+
+
+# ============================================================
+# 16. MAIN MENU
+# ============================================================
+
+def main_menu():
+
+    create_export_folder()
+
+    while True:
+
+        print()
+        print("=" * 60)
+        print("       COMICCRAFT EXPORT MANAGER")
+        print("=" * 60)
+
+        print("1. List exports")
+        print("2. Export text")
+        print("3. Export JSON")
+        print("4. Export image")
+        print("5. Export PDF")
+        print("6. Search exports")
+        print("7. Export summary")
+        print("8. Create export report")
+        print("9. Delete export")
+        print("10. Delete all exports")
+        print("11. Exit")
+
+        print("=" * 60)
+
+        choice = input(
+            "Enter your choice: "
+        ).strip()
+
+
+        # ----------------------------------------------------
+        # OPTION 1
+        # ----------------------------------------------------
+
+        if choice == "1":
+
+            list_exports()
+
+
+        # ----------------------------------------------------
+        # OPTION 2
+        # ----------------------------------------------------
+
+        elif choice == "2":
+
+            content = input(
+                "Enter text to export: "
+            )
+
+            export_text(
+                content
+            )
+
+
+        # ----------------------------------------------------
+        # OPTION 3
+        # ----------------------------------------------------
+
+        elif choice == "3":
+
+            sample_data = {
+
+                "project":
+                    "ComicCraft",
+
+                "title":
+                    "My AI Comic",
+
+                "status":
+                    "Completed",
+
+                "created_at":
+                    datetime.now().isoformat()
+
+            }
+
+            export_json(
+                sample_data
+            )
+
+
+        # ----------------------------------------------------
+        # OPTION 4
+        # ----------------------------------------------------
+
+        elif choice == "4":
+
+            image_path = input(
+                "Enter image path: "
+            ).strip()
+
+            export_image(
+                image_path
+            )
+
+
+        # ----------------------------------------------------
+        # OPTION 5
+        # ----------------------------------------------------
+
+        elif choice == "5":
+
+            pdf_path = input(
+                "Enter PDF path: "
+            ).strip()
+
+            export_pdf(
+                pdf_path
+            )
+
+
+        # ----------------------------------------------------
+        # OPTION 6
+        # ----------------------------------------------------
+
+        elif choice == "6":
+
+            keyword = input(
+                "Enter search keyword: "
+            ).strip()
+
+            search_exports(
+                keyword
+            )
+
+
+        # ----------------------------------------------------
+        # OPTION 7
+        # ----------------------------------------------------
+
+        elif choice == "7":
+
+            export_summary()
+
+
+        # ----------------------------------------------------
+        # OPTION 8
+        # ----------------------------------------------------
+
+        elif choice == "8":
+
+            create_export_report()
+
+
+        # ----------------------------------------------------
+        # OPTION 9
+        # ----------------------------------------------------
+
+        elif choice == "9":
+
+            filename = input(
+                "Enter filename to delete: "
+            ).strip()
+
+            delete_export(
+                filename
+            )
+
+
+        # ----------------------------------------------------
+        # OPTION 10
+        # ----------------------------------------------------
+
+        elif choice == "10":
+
+            confirm = input(
+                "Delete ALL exports? (yes/no): "
+            ).strip().lower()
+
+            if confirm == "yes":
+
+                delete_all_exports()
+
+            else:
+
+                print(
+                    "Delete operation cancelled."
+                )
+
+
+        # ----------------------------------------------------
+        # OPTION 11
+        # ----------------------------------------------------
+
+        elif choice == "11":
+
+            print(
+                "Thank you for using ComicCraft!"
+            )
+
+            break
+
+
+        # ----------------------------------------------------
+        # INVALID OPTION
+        # ----------------------------------------------------
+
+        else:
+
+            print(
+                "Invalid choice."
+            )
+
+
+# ============================================================
+# PROGRAM START
+# ============================================================
+
+if __name__ == "__main__":
+
+    print()
+    print(
+        "Starting ComicCraft Export Manager..."
+    )
+    print()
+
+    main_menu()
