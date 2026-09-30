@@ -1,0 +1,851 @@
+import os
+import shutil
+from pathlib import Path
+from datetime import datetime
+
+
+# ============================================================
+# COMICCRAFT - PANEL MANAGER
+# ============================================================
+
+# Main panels folder
+PANELS_FOLDER = Path("panels")
+
+# Backup folder
+BACKUP_FOLDER = Path("panels_backup")
+
+# Supported image formats
+SUPPORTED_FORMATS = [
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp"
+]
+
+
+# ============================================================
+# 1. CREATE PANELS FOLDER
+# ============================================================
+
+def create_panels_folder():
+    """
+    Create the panels folder if it does not exist.
+    """
+
+    PANELS_FOLDER.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    print("Panels folder is ready.")
+
+
+# ============================================================
+# 2. CREATE BACKUP FOLDER
+# ============================================================
+
+def create_backup_folder():
+
+    BACKUP_FOLDER.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    print("Backup folder is ready.")
+
+
+# ============================================================
+# 3. GET PANEL PATH
+# ============================================================
+
+def get_panel_path(panel_number, extension=".png"):
+    """
+    Return the path of a panel.
+
+    Example:
+        get_panel_path(1)
+
+    Returns:
+        panels/panel1.png
+    """
+
+    create_panels_folder()
+
+    filename = f"panel{panel_number}{extension}"
+
+    return PANELS_FOLDER / filename
+
+
+# ============================================================
+# 4. CHECK PANEL EXISTS
+# ============================================================
+
+def panel_exists(panel_number):
+    """
+    Check whether a panel exists.
+    """
+
+    for extension in SUPPORTED_FORMATS:
+
+        panel_path = get_panel_path(
+            panel_number,
+            extension
+        )
+
+        if panel_path.exists():
+            return True
+
+    return False
+
+
+# ============================================================
+# 5. FIND PANEL
+# ============================================================
+
+def find_panel(panel_number):
+    """
+    Find the actual file of a panel.
+    """
+
+    create_panels_folder()
+
+    for extension in SUPPORTED_FORMATS:
+
+        panel_path = PANELS_FOLDER / (
+            f"panel{panel_number}{extension}"
+        )
+
+        if panel_path.exists():
+            return panel_path
+
+    return None
+
+
+# ============================================================
+# 6. LIST ALL PANELS
+# ============================================================
+
+def list_panels():
+    """
+    Get all panel image files.
+    """
+
+    create_panels_folder()
+
+    panels = []
+
+    for file in PANELS_FOLDER.iterdir():
+
+        if file.is_file():
+
+            if file.suffix.lower() in SUPPORTED_FORMATS:
+
+                panels.append(file)
+
+    panels.sort()
+
+    return panels
+
+
+# ============================================================
+# 7. DISPLAY PANELS
+# ============================================================
+
+def show_panels():
+
+    panels = list_panels()
+
+    print()
+    print("=" * 50)
+    print("COMICCRAFT PANELS")
+    print("=" * 50)
+
+    if not panels:
+
+        print("No panels found.")
+
+        return
+
+    for number, panel in enumerate(
+        panels,
+        start=1
+    ):
+
+        print(
+            f"{number}. {panel.name}"
+        )
+
+    print("=" * 50)
+
+
+# ============================================================
+# 8. SAVE PANEL
+# ============================================================
+
+def save_panel(
+    source_file,
+    panel_number
+):
+    """
+    Copy an image into the panels folder.
+
+    Example:
+
+        save_panel(
+            "generated_images/image.png",
+            1
+        )
+    """
+
+    create_panels_folder()
+
+    source = Path(source_file)
+
+    if not source.exists():
+
+        print(
+            "Source image does not exist:"
+        )
+
+        print(source)
+
+        return None
+
+    extension = source.suffix.lower()
+
+    if extension not in SUPPORTED_FORMATS:
+
+        print(
+            "Unsupported image format."
+        )
+
+        return None
+
+    destination = (
+        PANELS_FOLDER /
+        f"panel{panel_number}{extension}"
+    )
+
+    shutil.copy2(
+        source,
+        destination
+    )
+
+    print(
+        f"Panel {panel_number} saved successfully."
+    )
+
+    print(
+        f"Location: {destination}"
+    )
+
+    return destination
+
+
+# ============================================================
+# 9. RENAME PANEL
+# ============================================================
+
+def rename_panel(
+    old_number,
+    new_number
+):
+    """
+    Rename a panel.
+
+    Example:
+
+        panel1.png
+        ->
+        panel5.png
+    """
+
+    panel = find_panel(old_number)
+
+    if panel is None:
+
+        print(
+            f"Panel {old_number} was not found."
+        )
+
+        return False
+
+    new_name = (
+        f"panel{new_number}"
+        f"{panel.suffix}"
+    )
+
+    new_path = (
+        PANELS_FOLDER /
+        new_name
+    )
+
+    panel.rename(new_path)
+
+    print(
+        f"Panel renamed successfully:"
+    )
+
+    print(
+        f"{panel.name} -> {new_path.name}"
+    )
+
+    return True
+
+
+# ============================================================
+# 10. DELETE PANEL
+# ============================================================
+
+def delete_panel(panel_number):
+    """
+    Delete a panel.
+    """
+
+    panel = find_panel(panel_number)
+
+    if panel is None:
+
+        print(
+            f"Panel {panel_number} was not found."
+        )
+
+        return False
+
+    panel.unlink()
+
+    print(
+        f"Panel {panel_number} deleted."
+    )
+
+    return True
+
+
+# ============================================================
+# 11. DELETE ALL PANELS
+# ============================================================
+
+def delete_all_panels():
+    """
+    Delete every panel from the folder.
+    """
+
+    panels = list_panels()
+
+    if not panels:
+
+        print("No panels to delete.")
+
+        return
+
+    for panel in panels:
+
+        panel.unlink()
+
+    print(
+        f"{len(panels)} panels deleted."
+    )
+
+
+# ============================================================
+# 12. BACKUP PANELS
+# ============================================================
+
+def backup_panels():
+    """
+    Create a backup of all comic panels.
+    """
+
+    create_panels_folder()
+    create_backup_folder()
+
+    panels = list_panels()
+
+    if not panels:
+
+        print(
+            "No panels available for backup."
+        )
+
+        return
+
+    timestamp = datetime.now().strftime(
+        "%Y%m%d_%H%M%S"
+    )
+
+    backup_path = (
+        BACKUP_FOLDER /
+        f"backup_{timestamp}"
+    )
+
+    backup_path.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    for panel in panels:
+
+        shutil.copy2(
+            panel,
+            backup_path / panel.name
+        )
+
+    print(
+        "Panel backup created successfully."
+    )
+
+    print(
+        f"Backup location: {backup_path}"
+    )
+
+
+# ============================================================
+# 13. GET PANEL COUNT
+# ============================================================
+
+def get_panel_count():
+
+    panels = list_panels()
+
+    return len(panels)
+
+
+# ============================================================
+# 14. GET PANEL INFORMATION
+# ============================================================
+
+def get_panel_information():
+
+    panels = list_panels()
+
+    information = []
+
+    for panel in panels:
+
+        size = panel.stat().st_size
+
+        information.append({
+
+            "name": panel.name,
+
+            "path": str(panel),
+
+            "extension": panel.suffix,
+
+            "size_bytes": size,
+
+            "size_kb": round(
+                size / 1024,
+                2
+            )
+
+        })
+
+    return information
+
+
+# ============================================================
+# 15. DISPLAY PANEL INFORMATION
+# ============================================================
+
+def show_panel_information():
+
+    information = (
+        get_panel_information()
+    )
+
+    print()
+    print("=" * 60)
+    print("PANEL INFORMATION")
+    print("=" * 60)
+
+    if not information:
+
+        print(
+            "No panels found."
+        )
+
+        return
+
+    for item in information:
+
+        print(
+            f"Name       : {item['name']}"
+        )
+
+        print(
+            f"Path       : {item['path']}"
+        )
+
+        print(
+            f"Format     : {item['extension']}"
+        )
+
+        print(
+            f"Size       : {item['size_kb']} KB"
+        )
+
+        print("-" * 60)
+
+
+# ============================================================
+# 16. VALIDATE PANELS
+# ============================================================
+
+def validate_panels():
+
+    panels = list_panels()
+
+    if not panels:
+
+        print(
+            "No panels available."
+        )
+
+        return False
+
+    valid = True
+
+    for panel in panels:
+
+        if panel.stat().st_size == 0:
+
+            print(
+                f"Invalid panel: {panel.name}"
+            )
+
+            valid = False
+
+        else:
+
+            print(
+                f"Valid panel: {panel.name}"
+            )
+
+    return valid
+
+
+# ============================================================
+# 17. CREATE PANEL PLACEHOLDERS
+# ============================================================
+
+def create_panel_placeholders(
+    number_of_panels
+):
+    """
+    Create empty placeholder text files.
+
+    This is useful for planning the comic.
+    """
+
+    create_panels_folder()
+
+    placeholder_folder = (
+        PANELS_FOLDER /
+        "placeholders"
+    )
+
+    placeholder_folder.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    for number in range(
+        1,
+        number_of_panels + 1
+    ):
+
+        file_path = (
+            placeholder_folder /
+            f"panel{number}_info.txt"
+        )
+
+        with open(
+            file_path,
+            "w",
+            encoding="utf-8"
+        ) as file:
+
+            file.write(
+                f"ComicCraft Panel {number}\n"
+            )
+
+            file.write(
+                "=" * 30 + "\n\n"
+            )
+
+            file.write(
+                "Panel Description:\n"
+            )
+
+            file.write(
+                "Add your panel description here.\n\n"
+            )
+
+            file.write(
+                "Characters:\n"
+            )
+
+            file.write(
+                "Add characters here.\n\n"
+            )
+
+            file.write(
+                "Dialogue:\n"
+            )
+
+            file.write(
+                "Add dialogue here.\n"
+            )
+
+    print(
+        f"{number_of_panels} panel placeholders created."
+    )
+
+
+# ============================================================
+# 18. ORGANIZE PANELS
+# ============================================================
+
+def organize_panels():
+
+    panels = list_panels()
+
+    if not panels:
+
+        print(
+            "No panels to organize."
+        )
+
+        return
+
+    organized_folder = (
+        PANELS_FOLDER /
+        "organized"
+    )
+
+    organized_folder.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    for index, panel in enumerate(
+        panels,
+        start=1
+    ):
+
+        new_name = (
+            f"comic_panel_{index}"
+            f"{panel.suffix}"
+        )
+
+        destination = (
+            organized_folder /
+            new_name
+        )
+
+        shutil.copy2(
+            panel,
+            destination
+        )
+
+    print(
+        "Panels organized successfully."
+    )
+
+    print(
+        f"Location: {organized_folder}"
+    )
+
+
+# ============================================================
+# 19. PANEL SUMMARY
+# ============================================================
+
+def panel_summary():
+
+    count = get_panel_count()
+
+    print()
+    print("=" * 50)
+    print("COMICCRAFT PANEL SUMMARY")
+    print("=" * 50)
+
+    print(
+        f"Total panels: {count}"
+    )
+
+    if count == 0:
+
+        print(
+            "No comic panels available."
+        )
+
+    else:
+
+        print(
+            "Comic panels are ready."
+        )
+
+    print("=" * 50)
+
+
+# ============================================================
+# 20. MAIN MENU
+# ============================================================
+
+def main_menu():
+
+    create_panels_folder()
+
+    while True:
+
+        print()
+        print("=" * 55)
+        print("        COMICCRAFT PANEL MANAGER")
+        print("=" * 55)
+
+        print("1. Show panels")
+        print("2. Show panel information")
+        print("3. Panel summary")
+        print("4. Validate panels")
+        print("5. Backup panels")
+        print("6. Create placeholders")
+        print("7. Organize panels")
+        print("8. Delete panel")
+        print("9. Exit")
+
+        print("=" * 55)
+
+        choice = input(
+            "Enter your choice: "
+        ).strip()
+
+        # ----------------------------------------------------
+        # OPTION 1
+        # ----------------------------------------------------
+
+        if choice == "1":
+
+            show_panels()
+
+        # ----------------------------------------------------
+        # OPTION 2
+        # ----------------------------------------------------
+
+        elif choice == "2":
+
+            show_panel_information()
+
+        # ----------------------------------------------------
+        # OPTION 3
+        # ----------------------------------------------------
+
+        elif choice == "3":
+
+            panel_summary()
+
+        # ----------------------------------------------------
+        # OPTION 4
+        # ----------------------------------------------------
+
+        elif choice == "4":
+
+            validate_panels()
+
+        # ----------------------------------------------------
+        # OPTION 5
+        # ----------------------------------------------------
+
+        elif choice == "5":
+
+            backup_panels()
+
+        # ----------------------------------------------------
+        # OPTION 6
+        # ----------------------------------------------------
+
+        elif choice == "6":
+
+            try:
+
+                number = int(
+                    input(
+                        "How many panels? "
+                    )
+                )
+
+                create_panel_placeholders(
+                    number
+                )
+
+            except ValueError:
+
+                print(
+                    "Please enter a valid number."
+                )
+
+        # ----------------------------------------------------
+        # OPTION 7
+        # ----------------------------------------------------
+
+        elif choice == "7":
+
+            organize_panels()
+
+        # ----------------------------------------------------
+        # OPTION 8
+        # ----------------------------------------------------
+
+        elif choice == "8":
+
+            try:
+
+                number = int(
+                    input(
+                        "Enter panel number: "
+                    )
+                )
+
+                delete_panel(number)
+
+            except ValueError:
+
+                print(
+                    "Please enter a valid number."
+                )
+
+        # ----------------------------------------------------
+        # OPTION 9
+        # ----------------------------------------------------
+
+        elif choice == "9":
+
+            print(
+                "Thank you for using ComicCraft!"
+            )
+
+            break
+
+        # ----------------------------------------------------
+        # INVALID OPTION
+        # ----------------------------------------------------
+
+        else:
+
+            print(
+                "Invalid choice. Please try again."
+            )
+
+
+# ============================================================
+# PROGRAM START
+# ============================================================
+
+if __name__ == "__main__":
+
+    print()
+    print("Starting ComicCraft Panel Manager...")
+    print()
+
+    main_menu()
