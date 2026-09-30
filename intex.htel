@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>ComicCraft - AI Comic Story Creator</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f1ff;
+            color: #222;
+        }
+
+        header {
+            background: #5b35d5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+        }
+
+        header p {
+            margin-top: 8px;
+            font-size: 16px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #5b35d5;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 13px 25px;
+            border: none;
+            border-radius: 8px;
+            background: #5b35d5;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4525a8;
+        }
+
+        .result {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0ebff;
+            border-radius: 10px;
+            white-space: pre-wrap;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+            color: #5b35d5;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            margin-top: 30px;
+            background: #222;
+            color: white;
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <!-- HEADER -->
+
+    <header>
+
+        <h1>🎨 ComicCraft</h1>
+
+        <p>
+            AI Comic Story Creator using Gemini Models
+        </p>
+
+    </header>
+
+
+    <!-- MAIN CONTAINER -->
+
+    <div class="container">
+
+
+        <!-- STORY CREATOR -->
+
+        <div class="card">
+
+            <h2>✨ Create Your Comic</h2>
+
+
+            <label for="idea">
+                Comic Idea
+            </label>
+
+            <textarea
+                id="idea"
+                placeholder="Enter your comic story idea..."
+            ></textarea>
+
+
+            <label for="character">
+                Main Character
+            </label>
+
+            <input
+                type="text"
+                id="character"
+                placeholder="Example: Arun"
+            >
+
+
+            <label for="genre">
+                Genre
+            </label>
+
+            <select id="genre">
+
+                <option value="Adventure">
+                    Adventure
+                </option>
+
+                <option value="Science Fiction">
+                    Science Fiction
+                </option>
+
+                <option value="Fantasy">
+                    Fantasy
+                </option>
+
+                <option value="Comedy">
+                    Comedy
+                </option>
+
+                <option value="Mystery">
+                    Mystery
+                </option>
+
+                <option value="Superhero">
+                    Superhero
+                </option>
+
+            </select>
+
+
+            <label for="pages">
+                Number of Pages
+            </label>
+
+            <input
+                type="number"
+                id="pages"
+                value="4"
+                min="1"
+                max="20"
+            >
+
+
+            <button onclick="createComic()">
+                🚀 Generate Comic
+            </button>
+
+
+            <div
+                class="loading"
+                id="loading"
+            >
+                ⏳ Creating your comic...
+            </div>
+
+
+            <div
+                class="result"
+                id="result"
+            ></div>
+
+        </div>
+
+
+        <!-- CHARACTER CREATOR -->
+
+        <div class="card">
+
+            <h2>🧑 Create Character</h2>
+
+
+            <label>
+                Character Name
+            </label>
+
+            <input
+                type="text"
+                id="characterName"
+                placeholder="Example: Arun"
+            >
+
+
+            <label>
+                Personality
+            </label>
+
+            <input
+                type="text"
+                id="personality"
+                placeholder="Brave, friendly, intelligent"
+            >
+
+
+            <label>
+                Special Power
+            </label>
+
+            <input
+                type="text"
+                id="power"
+                placeholder="Example: Flying"
+            >
+
+
+            <button onclick="createCharacter()">
+                ✨ Generate Character
+            </button>
+
+
+            <div
+                class="result"
+                id="characterResult"
+            ></div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <p>
+            © 2026 ComicCraft | AI Comic Story Creator
+        </p>
+
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        async function createComic() {
+
+            const idea =
+                document.getElementById("idea").value;
+
+            const character =
+                document.getElementById("character").value;
+
+            const genre =
+                document.getElementById("genre").value;
+
+            const pages =
+                document.getElementById("pages").value;
+
+
+            if (idea.trim() === "") {
+
+                alert(
+                    "Please enter a comic idea."
+                );
+
+                return;
+            }
+
+
+            document.getElementById(
+                "loading"
+            ).style.display = "block";
+
+
+            document.getElementById(
+                "result"
+            ).style.display = "none";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/create-comic",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                story: idea,
+
+                                character:
+                                    character,
+
+                                genre:
+                                    genre,
+
+                                pages:
+                                    pages
+
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                document.getElementById(
+                    "result"
+                ).style.display = "block";
+
+
+                document.getElementById(
+                    "result"
+                ).textContent =
+                    JSON.stringify(
+                        data,
+                        null,
+                        2
+                    );
+
+
+            } catch (error) {
+
+                document.getElementById(
+                    "result"
+                ).style.display = "block";
+
+
+                document.getElementById(
+                    "result"
+                ).textContent =
+                    "Error: " + error.message;
+
+            }
+
+
+            document.getElementById(
+                "loading"
+            ).style.display = "none";
+
+        }
+
+
+
+        async function createCharacter() {
+
+            const name =
+                document.getElementById(
+                    "characterName"
+                ).value;
+
+            const personality =
+                document.getElementById(
+                    "personality"
+                ).value;
+
+            const power =
+                document.getElementById(
+                    "power"
+                ).value;
+
+
+            if (name.trim() === "") {
+
+                alert(
+                    "Please enter character name."
+                );
+
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/character",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                name: name,
+
+                                personality:
+                                    personality,
+
+                                power: power
+
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                const result =
+                    document.getElementById(
+                        "characterResult"
+                    );
+
+
+                result.style.display =
+                    "block";
+
+
+                result.textContent =
+                    JSON.stringify(
+                        data,
+                        null,
+                        2
+                    );
+
+
+            } catch (error) {
+
+                alert(
+                    "Something went wrong: "
+                    + error.message
+                );
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
