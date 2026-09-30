@@ -1,0 +1,587 @@
+import os
+import shutil
+from pathlib import Path
+
+
+# ============================================================
+# COMICCRAFT - FONT MANAGER
+# ============================================================
+
+FONTS_FOLDER = Path("fonts")
+
+SUPPORTED_FONT_FORMATS = [
+    ".ttf",
+    ".otf",
+    ".woff",
+    ".woff2"
+]
+
+
+# ============================================================
+# 1. CREATE FONTS FOLDER
+# ============================================================
+
+def create_fonts_folder():
+
+    FONTS_FOLDER.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    print("Fonts folder is ready.")
+
+
+# ============================================================
+# 2. FIND ALL FONTS
+# ============================================================
+
+def list_fonts():
+
+    create_fonts_folder()
+
+    fonts = []
+
+    for file in FONTS_FOLDER.iterdir():
+
+        if file.is_file():
+
+            if file.suffix.lower() in SUPPORTED_FONT_FORMATS:
+
+                fonts.append(file)
+
+    fonts.sort()
+
+    return fonts
+
+
+# ============================================================
+# 3. DISPLAY AVAILABLE FONTS
+# ============================================================
+
+def show_fonts():
+
+    fonts = list_fonts()
+
+    print()
+    print("=" * 55)
+    print("           COMICCRAFT FONTS")
+    print("=" * 55)
+
+    if not fonts:
+
+        print("No font files found.")
+        print()
+        print("Add .ttf or .otf files inside:")
+        print("fonts/")
+
+    else:
+
+        for number, font in enumerate(
+            fonts,
+            start=1
+        ):
+
+            print(
+                f"{number}. {font.name}"
+            )
+
+    print("=" * 55)
+
+
+# ============================================================
+# 4. GET FONT PATH
+# ============================================================
+
+def get_font_path(font_name):
+
+    create_fonts_folder()
+
+    font_path = (
+        FONTS_FOLDER /
+        font_name
+    )
+
+    if font_path.exists():
+
+        return font_path
+
+    print(
+        f"Font not found: {font_name}"
+    )
+
+    return None
+
+
+# ============================================================
+# 5. CHECK FONT
+# ============================================================
+
+def check_font(font_name):
+
+    font_path = get_font_path(
+        font_name
+    )
+
+    if font_path is None:
+
+        return False
+
+    extension = (
+        font_path.suffix.lower()
+    )
+
+    if extension in SUPPORTED_FONT_FORMATS:
+
+        print(
+            f"Valid font: {font_name}"
+        )
+
+        return True
+
+    print(
+        f"Unsupported font: {font_name}"
+    )
+
+    return False
+
+
+# ============================================================
+# 6. COPY FONT INTO PROJECT
+# ============================================================
+
+def add_font(source_file):
+
+    create_fonts_folder()
+
+    source = Path(source_file)
+
+    if not source.exists():
+
+        print(
+            "Font file does not exist."
+        )
+
+        return None
+
+    extension = (
+        source.suffix.lower()
+    )
+
+    if extension not in SUPPORTED_FONT_FORMATS:
+
+        print(
+            "Unsupported font format."
+        )
+
+        print(
+            "Use TTF, OTF, WOFF or WOFF2."
+        )
+
+        return None
+
+    destination = (
+        FONTS_FOLDER /
+        source.name
+    )
+
+    shutil.copy2(
+        source,
+        destination
+    )
+
+    print(
+        "Font added successfully."
+    )
+
+    print(
+        f"Font: {destination}"
+    )
+
+    return destination
+
+
+# ============================================================
+# 7. REMOVE FONT
+# ============================================================
+
+def remove_font(font_name):
+
+    font_path = get_font_path(
+        font_name
+    )
+
+    if font_path is None:
+
+        return False
+
+    font_path.unlink()
+
+    print(
+        f"Font removed: {font_name}"
+    )
+
+    return True
+
+
+# ============================================================
+# 8. FONT INFORMATION
+# ============================================================
+
+def get_font_information():
+
+    fonts = list_fonts()
+
+    information = []
+
+    for font in fonts:
+
+        size = font.stat().st_size
+
+        information.append({
+
+            "name": font.name,
+
+            "format": font.suffix,
+
+            "size_bytes": size,
+
+            "size_kb": round(
+                size / 1024,
+                2
+            ),
+
+            "path": str(font)
+
+        })
+
+    return information
+
+
+# ============================================================
+# 9. DISPLAY FONT INFORMATION
+# ============================================================
+
+def show_font_information():
+
+    information = (
+        get_font_information()
+    )
+
+    print()
+    print("=" * 65)
+    print("             FONT INFORMATION")
+    print("=" * 65)
+
+    if not information:
+
+        print(
+            "No fonts available."
+        )
+
+        return
+
+    for font in information:
+
+        print(
+            f"Name   : {font['name']}"
+        )
+
+        print(
+            f"Format : {font['format']}"
+        )
+
+        print(
+            f"Size   : {font['size_kb']} KB"
+        )
+
+        print(
+            f"Path   : {font['path']}"
+        )
+
+        print("-" * 65)
+
+
+# ============================================================
+# 10. SEARCH FONT
+# ============================================================
+
+def search_font(keyword):
+
+    fonts = list_fonts()
+
+    keyword = keyword.lower()
+
+    results = []
+
+    for font in fonts:
+
+        if keyword in font.name.lower():
+
+            results.append(font)
+
+    print()
+    print(
+        f"Search results for: {keyword}"
+    )
+
+    if not results:
+
+        print(
+            "No matching fonts found."
+        )
+
+    else:
+
+        for font in results:
+
+            print(
+                f"- {font.name}"
+            )
+
+    return results
+
+
+# ============================================================
+# 11. GET FONT COUNT
+# ============================================================
+
+def get_font_count():
+
+    return len(
+        list_fonts()
+    )
+
+
+# ============================================================
+# 12. FONT SUMMARY
+# ============================================================
+
+def font_summary():
+
+    fonts = list_fonts()
+
+    print()
+    print("=" * 50)
+    print("       COMICCRAFT FONT SUMMARY")
+    print("=" * 50)
+
+    print(
+        f"Total fonts: {len(fonts)}"
+    )
+
+    if not fonts:
+
+        print(
+            "No fonts have been added yet."
+        )
+
+    else:
+
+        print(
+            "Fonts are ready for ComicCraft."
+        )
+
+    print("=" * 50)
+
+
+# ============================================================
+# 13. CREATE FONT CONFIGURATION
+# ============================================================
+
+def create_font_config():
+
+    create_fonts_folder()
+
+    config_file = (
+        FONTS_FOLDER /
+        "font_config.txt"
+    )
+
+    with open(
+        config_file,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        file.write(
+            "COMICCRAFT FONT CONFIGURATION\n"
+        )
+
+        file.write(
+            "==============================\n\n"
+        )
+
+        file.write(
+            "Main Font: ComicFont.ttf\n"
+        )
+
+        file.write(
+            "Title Font: TitleFont.ttf\n"
+        )
+
+        file.write(
+            "Dialogue Font: DialogueFont.ttf\n"
+        )
+
+        file.write(
+            "Caption Font: CaptionFont.ttf\n"
+        )
+
+    print(
+        "Font configuration created."
+    )
+
+    print(
+        f"File: {config_file}"
+    )
+
+
+# ============================================================
+# 14. MAIN MENU
+# ============================================================
+
+def main_menu():
+
+    create_fonts_folder()
+
+    while True:
+
+        print()
+        print("=" * 60)
+        print("          COMICCRAFT FONT MANAGER")
+        print("=" * 60)
+
+        print("1. Show fonts")
+        print("2. Font information")
+        print("3. Search font")
+        print("4. Add font")
+        print("5. Remove font")
+        print("6. Font summary")
+        print("7. Create font configuration")
+        print("8. Exit")
+
+        print("=" * 60)
+
+        choice = input(
+            "Enter your choice: "
+        ).strip()
+
+
+        # ----------------------------------------------------
+        # OPTION 1
+        # ----------------------------------------------------
+
+        if choice == "1":
+
+            show_fonts()
+
+
+        # ----------------------------------------------------
+        # OPTION 2
+        # ----------------------------------------------------
+
+        elif choice == "2":
+
+            show_font_information()
+
+
+        # ----------------------------------------------------
+        # OPTION 3
+        # ----------------------------------------------------
+
+        elif choice == "3":
+
+            keyword = input(
+                "Enter font name to search: "
+            ).strip()
+
+            search_font(
+                keyword
+            )
+
+
+        # ----------------------------------------------------
+        # OPTION 4
+        # ----------------------------------------------------
+
+        elif choice == "4":
+
+            source = input(
+                "Enter font file path: "
+            ).strip()
+
+            add_font(
+                source
+            )
+
+
+        # ----------------------------------------------------
+        # OPTION 5
+        # ----------------------------------------------------
+
+        elif choice == "5":
+
+            font_name = input(
+                "Enter font filename: "
+            ).strip()
+
+            remove_font(
+                font_name
+            )
+
+
+        # ----------------------------------------------------
+        # OPTION 6
+        # ----------------------------------------------------
+
+        elif choice == "6":
+
+            font_summary()
+
+
+        # ----------------------------------------------------
+        # OPTION 7
+        # ----------------------------------------------------
+
+        elif choice == "7":
+
+            create_font_config()
+
+
+        # ----------------------------------------------------
+        # OPTION 8
+        # ----------------------------------------------------
+
+        elif choice == "8":
+
+            print(
+                "Thank you for using ComicCraft!"
+            )
+
+            break
+
+
+        # ----------------------------------------------------
+        # INVALID OPTION
+        # ----------------------------------------------------
+
+        else:
+
+            print(
+                "Invalid choice. Please try again."
+            )
+
+
+# ============================================================
+# PROGRAM START
+# ============================================================
+
+if __name__ == "__main__":
+
+    print()
+    print(
+        "Starting ComicCraft Font Manager..."
+    )
+    print()
+
+    main_menu()
