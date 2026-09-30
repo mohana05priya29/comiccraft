@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>ComicCraft - Comic Preview</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f1fa;
+            color: #222;
+        }
+
+        /* HEADER */
+
+        header {
+            background: #5b35d5;
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+        }
+
+        header p {
+            margin-top: 8px;
+        }
+
+
+        /* MAIN CONTAINER */
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+
+        /* COMIC HEADER */
+
+        .comic-header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .comic-header h2 {
+            color: #5b35d5;
+            font-size: 30px;
+        }
+
+        .comic-header p {
+            margin-top: 10px;
+            color: #666;
+        }
+
+
+        /* COMIC PAGE */
+
+        .comic-page {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #5b35d5;
+        }
+
+
+        /* PANELS */
+
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+
+        .panel {
+            border: 5px solid #222;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #eee;
+            position: relative;
+        }
+
+
+        .panel img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+
+        .panel-number {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            color: #222;
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+
+        /* SPEECH BUBBLE */
+
+        .speech {
+            padding: 15px;
+            background: white;
+            border-top: 3px solid #222;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+
+        .character-name {
+            font-weight: bold;
+            color: #5b35d5;
+        }
+
+
+        /* STORY */
+
+        .story-box {
+            background: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .story-box h2 {
+            color: #5b35d5;
+            margin-bottom: 15px;
+        }
+
+        .story-text {
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+
+        /* BUTTONS */
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+
+        button {
+            padding: 13px 25px;
+            border: none;
+            border-radius: 8px;
+            background: #5b35d5;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+
+        button:hover {
+            background: #4325a7;
+        }
+
+
+        .secondary {
+            background: #333;
+        }
+
+
+        /* LOADING */
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+
+        /* EMPTY MESSAGE */
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #777;
+        }
+
+
+        /* FOOTER */
+
+        footer {
+            background: #222;
+            color: white;
+            text-align: center;
+            padding: 25px;
+            margin-top: 40px;
+        }
+
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+
+            .panels {
+                grid-template-columns: 1fr;
+            }
+
+            .panel img {
+                height: 250px;
+            }
+
+            header h1 {
+                font-size: 25px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- HEADER -->
+
+    <header>
+
+        <h1>🎨 ComicCraft</h1>
+
+        <p>
+            AI Comic Story Creator
+        </p>
+
+    </header>
+
+
+    <!-- MAIN -->
+
+    <div class="container">
+
+
+        <!-- COMIC INFORMATION -->
+
+        <div class="comic-header">
+
+            <h2 id="comicTitle">
+                My AI Comic
+            </h2>
+
+            <p id="comicGenre">
+                Adventure
+            </p>
+
+        </div>
+
+
+        <!-- STORY -->
+
+        <div class="story-box">
+
+            <h2>📖 Story</h2>
+
+            <div
+                class="story-text"
+                id="storyText"
+            >
+                Your generated comic story
+                will appear here.
+            </div>
+
+        </div>
+
+
+        <!-- COMIC PAGE -->
+
+        <div
+            class="comic-page"
+            id="comicPage"
+        >
+
+            <h2 class="page-title">
+                Page 1
+            </h2>
+
+
+            <!-- PANELS -->
+
+            <div class="panels">
+
+
+                <!-- PANEL 1 -->
+
+                <div class="panel">
+
+                    <span class="panel-number">
+                        Panel 1
+                    </span>
+
+                    <img
+                        src="/static/images/panel1.png"
+                        alt="Comic Panel 1"
+                        onerror="this.style.display='none'"
+                    >
+
+                    <div class="speech">
+
+                        <span class="character-name">
+                            Hero:
+                        </span>
+
+                        This place looks mysterious...
+
+                    </div>
+
+                </div>
+
+
+                <!-- PANEL 2 -->
+
+                <div class="panel">
+
+                    <span class="panel-number">
+                        Panel 2
+                    </span>
+
+                    <img
+                        src="/static/images/panel2.png"
+                        alt="Comic Panel 2"
+                        onerror="this.style.display='none'"
+                    >
+
+                    <div class="speech">
+
+                        <span class="character-name">
+                            Hero:
+                        </span>
+
+                        What is that strange sound?
+
+                    </div>
+
+                </div>
+
+
+                <!-- PANEL 3 -->
+
+                <div class="panel">
+
+                    <span class="panel-number">
+                        Panel 3
+                    </span>
+
+                    <img
+                        src="/static/images/panel3.png"
+                        alt="Comic Panel 3"
+                        onerror="this.style.display='none'"
+                    >
+
+                    <div class="speech">
+
+                        <span class="character-name">
+                            Robot:
+                        </span>
+
+                        I have been waiting for you.
+
+                    </div>
+
+                </div>
+
+
+                <!-- PANEL 4 -->
+
+                <div class="panel">
+
+                    <span class="panel-number">
+                        Panel 4
+                    </span>
+
+                    <img
+                        src="/static/images/panel4.png"
+                        alt="Comic Panel 4"
+                        onerror="this.style.display='none'"
+                    >
+
+                    <div class="speech">
+
+                        <span class="character-name">
+                            Hero:
+                        </span>
+
+                        Then let's solve this mystery!
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- BUTTONS -->
+
+        <div class="buttons">
+
+            <button onclick="downloadComic()">
+                📥 Download Comic
+            </button>
+
+            <button
+                class="secondary"
+                onclick="window.print()"
+            >
+                🖨️ Print Comic
+            </button>
+
+            <button
+                class="secondary"
+                onclick="goHome()"
+            >
+                🏠 Create Another Comic
+            </button>
+
+        </div>
+
+
+        <!-- LOADING -->
+
+        <div
+            class="loading"
+            id="loading"
+        >
+
+            ⏳ Loading comic...
+
+        </div>
+
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <p>
+            © 2026 ComicCraft
+        </p>
+
+        <p>
+            AI Comic Story Creator using Gemini
+        </p>
+
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+
+        // ==========================================
+        // LOAD COMIC DATA
+        // ==========================================
+
+        function loadComic() {
+
+            const savedComic =
+                localStorage.getItem(
+                    "comicData"
+                );
+
+
+            if (!savedComic) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const comic =
+                    JSON.parse(
+                        savedComic
+                    );
+
+
+                if (comic.title) {
+
+                    document.getElementById(
+                        "comicTitle"
+                    ).textContent =
+                        comic.title;
+
+                }
+
+
+                if (comic.genre) {
+
+                    document.getElementById(
+                        "comicGenre"
+                    ).textContent =
+                        comic.genre;
+
+                }
+
+
+                if (comic.story) {
+
+                    document.getElementById(
+                        "storyText"
+                    ).textContent =
+                        comic.story;
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.log(
+                    "Could not load comic data:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // DOWNLOAD COMIC
+        // ==========================================
+
+        function downloadComic() {
+
+            window.print();
+
+        }
+
+
+        // ==========================================
+        // GO HOME
+        // ==========================================
+
+        function goHome() {
+
+            window.location.href = "/";
+
+        }
+
+
+        // ==========================================
+        // START
+        // ==========================================
+
+        window.addEventListener(
+            "DOMContentLoaded",
+            function() {
+
+                loadComic();
+
+            }
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>
